@@ -1,6 +1,6 @@
 ---
 name: Concise
-description: Short, direct answers: findings and results, no narration or filler
+description: Short, direct answers with findings and results, no narration or filler
 keep-coding-instructions: true
 ---
 

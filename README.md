@@ -11,7 +11,7 @@ Made by Mohamed Salah ([mohammed-salah-zidane](https://github.com/mohammed-salah
 **What the setup prompt does to your machine.** It reads `~/.claude` (settings, CLAUDE.md, agents, commands, skills, hooks, plugins), the MCP server entries in `~/.claude.json`, and the `CLAUDE.md`, `.claude` folder, `.mcp.json` and memory folder of each project you choose. Then it shows you one plan and stops.
 
 - You can strike or change items in the plan. Your go covers only what is left in it. Three later steps ask again: code changes after the architecture read, which working rules to add, and the fixes the CLAUDE.md skills propose.
-- Before it changes anything, it backs up what it will touch into `~/.claude/backups/setup-<date>/`. Removed skills and tools are moved there, not deleted, and a `RESTORE.md` in that folder says how to put each one back.
+- Before it changes anything, it backs up what it will touch into `~/.claude/backups/setup-<date>/`. Removed skills, agents, commands and leftover files are moved there, not deleted. Plugins are uninstalled with Claude Code's own command, and the backup lists them so that each can be reinstalled. A `RESTORE.md` in that folder says how to put each one back.
 - It does not commit or stage anything, and it never prints a secret. If one does reach the log, it tells you so that you can rotate it.
 
 **Requirements.**
@@ -69,11 +69,11 @@ The cleanup itself, deciding which plugins and skills to remove, is the part the
 
 | Claim | Status |
 |---|---|
-| Start-up prompt, headless: 65.8k down to 60.0k tokens, about 9% | Measured, two samples before and after. |
+| Start-up prompt, headless: 65.8k down to 60.0k tokens, about 9% | Measured with headless cold prompts before and after. |
 | Plugins, skills and permission rules removed (table below) | Counted. |
 | About 7.0 billion cached tokens for one large task | Measured from that task's transcripts, before the rebuild. |
 | Lower cost on long runs from the 300k compact window, short helper replies and `high` effort | Not measured yet. It is expected from where the cost was; the next large task will show it. |
-| The four agents and the three scripts | Installed on that machine. The agents pass `claude plugin validate`; the two counting scripts produced the numbers on this page. |
+| The four agents and the three scripts | Installed on that machine. The agents pass `claude plugin validate`, and both counting scripts run there. |
 | `/graph`, `/architecture`, the three skill templates and the setup prompt | Written and validated, not yet run end to end. A fresh Claude session reviewed the setup prompt, and its findings were fixed. |
 
 ## What is in the folder
