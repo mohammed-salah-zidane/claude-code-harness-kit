@@ -1,6 +1,6 @@
 # Audit and rebuild my Claude Code setup
 
-I want you to audit my whole Claude Code setup on this machine, clean it, and install a small kit that keeps quality high and token use low. It should work the same in every project I have.
+I want you to audit my whole Claude Code setup on this machine, clean it, and install a kit that keeps quality high and token use low. It should work the same in every project I have.
 
 This file comes from a rebuild that someone else did on their own machine in November 2026, on Claude Code 2.1.325. The lessons and the kit are theirs. My machine, my projects and my plugins are different, so measure here first, and show me one plan before you remove or overwrite anything.
 

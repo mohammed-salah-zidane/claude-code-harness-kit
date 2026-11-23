@@ -1,6 +1,6 @@
 # Claude Code harness kit
 
-A small setup for Claude Code that aims to keep quality high and token use low, plus a prompt that has Claude audit your current setup, clean it up with your approval, and install the kit.
+A Claude Code setup built to keep quality high and token use low, plus a prompt that has Claude audit your current setup, clean it up with your approval, and install the kit.
 
 It comes from one rebuild in November 2026 by one developer who builds a mobile app for iOS and Android with Claude Code every day. The numbers behind each choice are summarised below; the logs themselves stay private. Nothing here is specific to that app.
 
@@ -8,7 +8,7 @@ Made by Mohamed Salah ([mohammed-salah-zidane](https://github.com/mohammed-salah
 
 ## How it came about
 
-Since I started coding with AI, I have changed my setup almost every week, looking for what works. Plain chat first. Then agents that edit the code. Then Spec Kit to write specs before code. Then Superpowers for planning, with UI skills on top for design. Now a small graph of agents with an advisor. Each step fixed something the one before could not.
+Since I started coding with AI, I have changed my setup almost every week, looking for what works. Plain chat first. Then agents that edit the code. Then Spec Kit to write specs before code. Then Superpowers for planning, with UI skills on top for design. Now a graph of agents with an advisor. Each step fixed something the one before could not.
 
 Newer models do much of what those layers did, and every layer costs tokens. So this kit keeps only what still earns its place on my own projects: a ticket instead of a plan file, a few agents with written briefs, an advisor at the decision points, and one review per change. The daily flow below shows how they fit together.
 
