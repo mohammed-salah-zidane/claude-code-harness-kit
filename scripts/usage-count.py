@@ -4,7 +4,7 @@
 A skill counts as used when the model invoked it or when you typed it as /name.
 
 Run: python3 usage-count.py
-Transcripts are kept for about 30 days by default, so the counts cover that window only.
+It sees only the transcripts still on disk; the date it prints first is the start of the window its counts cover.
 """
 import collections, glob, os, re, time
 

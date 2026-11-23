@@ -1,6 +1,6 @@
 # The working rules
 
-These are the rules one product has run on, with the stack and the architecture taken out. Each one exists because its absence cost something. Take the ones that fit your work, put them in your own words in your project's CLAUDE.md, and leave the rest.
+These are the rules one product has run on, with the stack and the architecture taken out. Each one was added after something went wrong without it. Take the ones that fit your work, put them in your own words in your project's CLAUDE.md, and leave the rest.
 
 There is no architecture here on purpose. `/architecture` (in `kit/skills/architecture/`) chooses one for a new project or learns the one your project already has, writes it down, and sets up the checks that keep work inside it.
 
@@ -14,7 +14,7 @@ There is no architecture here on purpose. `/architecture` (in `kit/skills/archit
 | For a bug a customer reported: prove the cause, look at how comparable products behave, and judge by what users expect. | The reported symptom is rarely the cause. |
 | Claim only what you ran in this session and read the result of. Otherwise write "not run" and why. | A summary that sounds finished is not evidence. |
 | A change a person can see is hand tested on every platform it touches before it is merged or called done. | Unit tests do not show a clipped label or a dead button. |
-| A review comment ends in a code change or in the owner's decision. It is not answered and left. | "Answered" is not "fixed". |
+| A review comment ends in a code change or in the owner's decision. It is not answered and left. | A reply leaves the code as it was, so the problem the reviewer found is still there. |
 | Fix what you find. A real bug, a red test, a stale comment or dead code met on the way is fixed in the same pass, with the same checks as the requested work. Anything that cannot be fixed safely is named out loud. | "Not in this diff" leaves things broken for the next person. |
 | One review per diff: a bug review in a fresh context, then the project's own sides, then one pass that only looks for code to delete. Never a skim. | Two overlapping reviews cost twice and report the same finding twice. |
 | On a long job with many parts: test each fix as it is made, and run the full checks once after all parts. | Re-running the whole suite after every small change spends the session on waiting. |
@@ -34,8 +34,8 @@ There is no architecture here on purpose. `/architecture` (in `kit/skills/archit
 | A feature that stores data is covered by sync, backup and export from its first version, where the product has those. | Adding it later means some users have already lost data. |
 | No comments that restate the code or narrate the change. No compatibility shims and no "deprecated" markers in code you own: move the callers and delete. | Dead paths are read, maintained and broken for nothing. |
 | New measurement never costs the user speed, and every important journey stays traceable. | Instrumentation that slows the first screen costs more than it tells. |
-| The live product stays stable. No change in what it does for existing users without a go. Never take something away from a paying user. | Trust is slower to rebuild than code. |
-| Use the current stable version of a dependency, and check its present documentation before using an interface from memory. | Interfaces move faster than recall. |
+| The live product stays stable. No change in what it does for existing users without a go. Never take something away from a paying user. | Users who lose something they relied on are slow to trust the product again. |
+| Use the current stable version of a dependency, and check its present documentation before using an interface from memory. | Interfaces change between versions, and what a model remembers of them is often out of date. |
 
 ## Interface and words
 

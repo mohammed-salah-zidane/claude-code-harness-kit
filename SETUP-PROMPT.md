@@ -31,8 +31,8 @@ Use these facts to decide what matters. The numbers are from that machine.
 ## Ground rules for this job
 
 - Back up before you change anything, into `~/.claude/backups/setup-<today>/`: `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/agents`, `~/.claude/commands`, `~/.claude/plugins/installed_plugins.json`, a listing of `~/.claude/skills` with link targets, `~/.claude.json` (owner-only permissions), `~/.claude/hooks`, any shell profile you will edit, and each project's `CLAUDE.md` and `.claude` folder (without its worktrees) before you touch them.
-- A removed skill that is a symlink is unlinked, with its target recorded. A removed skill that is a real folder is moved into the backup. Write `skills-removed.tsv` (name, kind, target) and a `RESTORE.md` beside it. Nothing I own is deleted without a copy, except a tool's own install folder that I can reinstall.
-- Never print a secret. Read `.mcp.json`, `~/.claude.json` and env files with a script that prints key names and `<set>` in place of values. Treat as secret everything under `env` or `headers`, any value whose key contains KEY, TOKEN, SECRET, PASSWORD, CREDENTIAL, AUTH or DSN, any argument that follows a flag such as `--token`, and any address with a name and password in it. If a secret does reach the log, tell me so that I can rotate it.
+- A removed skill that is a symlink is unlinked, with its target recorded. A removed skill that is a real folder is moved into the backup. Write `skills-removed.tsv` (name, kind, target) and a `RESTORE.md` beside it. Nothing is deleted without a copy in the backup.
+- Never print a secret. `~/.claude.json` holds sign-in data: never open it with Read or `cat`; query only the keys you need (`mcpServers`, `projects`, `disabledMcpServers`) with a script. Read `.mcp.json`, `~/.claude.json` and env files with a script that prints key names and `<set>` in place of values. Treat as secret everything under `env` or `headers`, any value whose key contains KEY, TOKEN, SECRET, PASSWORD, CREDENTIAL, AUTH or DSN, any argument that follows a flag such as `--token`, and any address with a name and password in it. If a secret does reach the log, tell me so that I can rotate it.
 - No commits and nothing staged. Delete a tracked file with `rm`, not `git rm`, so that another session's commit cannot pick the change up. No destructive git.
 - When a permission check refuses an action, do not route around it. Finish the rest and tell me which line to change by hand.
 - Work inline. The only subagents in this job are the one-agent test near the end and, if the architecture step needs a wide read, one `scout`.
@@ -54,7 +54,7 @@ claude mcp list
 
 One headless sample moves by a few thousand tokens with which MCP servers connect in time, so take two.
 
-Count what I use with `python3 <kit folder>/scripts/usage-count.py`. It reads `~/.claude/projects` wherever it runs, and counts both skills the model invoked and commands I typed as `/name`. Transcripts are kept for about 30 days by default, so it only covers that window; it prints the date of the oldest one, and the personal skills with no run.
+Count what I use with `python3 <kit folder>/scripts/usage-count.py`. It reads `~/.claude/projects` wherever it runs, and counts both skills the model invoked and commands I typed as `/name`. It only sees the transcripts still on disk, so it prints the date of the oldest one: the counts cover that window, and a skill I use once a quarter can look unused. It also lists the personal skills with no run.
 
 Then run `python3 <kit folder>/scripts/session-cost.py 14`. It lists my recent sessions with their turns and their median context per turn. That shows whether my cost is context size, as it was in the original rebuild.
 
@@ -85,7 +85,7 @@ Put each finding in the plan with what you would do. These are the defaults that
 | A CLAUDE.md with no test command | Add the real one. |
 | A skill file longer than about 20KB | Keep its rules and steps in `SKILL.md`. Move examples, history and dated notes into `references/`, text unchanged, each under a heading. Verify with a short script that every non-empty line of the moved text is in the new file, in the same order. |
 | A memory index with status lines of finished work, or lines that repeat a CLAUDE.md rule | Move those lines to an archive file in the same folder. The notes themselves stay. |
-| A tool I no longer use that left files, shell profile lines or scripts behind | Remove it after I confirm I no longer use the tool. My own files go to the backup first. The tool's install folder is deleted, since it can be reinstalled. |
+| A tool I no longer use that left files, shell profile lines or scripts behind | Remove it after I confirm I no longer use the tool. Its files, my own and its install folder alike, are moved into the backup. Tell me the size of the install folder so that I can delete that copy myself. |
 
 Also put these decisions in the plan, each with your recommendation:
 
@@ -97,7 +97,7 @@ Also put these decisions in the plan, each with your recommendation:
 6. **The CLAUDE.md plugin.** Whether to install `claude-md-management`, which step 6 uses.
 7. **Anything you are unsure about.** Say what you found and what you would do.
 
-Then stop and wait for my go. A go on the plan covers every item in it. Three later steps ask again, because they depend on what you find: code changes after the architecture read, which working rules to add, and the fixes the CLAUDE.md skills propose.
+Then stop and wait for my go. I may strike or change items first; a go covers only the items left in the plan, and nothing outside it. Three later steps ask again, because they depend on what you find: code changes after the architecture read, which working rules to add, and the fixes the CLAUDE.md skills propose.
 
 ## Step 3. Apply the removals
 
@@ -132,7 +132,7 @@ Copy these files. If a file of the same name exists, show me the difference and 
 
 | From the kit folder | To | Note |
 |---|---|---|
-| `kit/CLAUDE.md` | `~/.claude/CLAUDE.md` | Add its four sections to mine. |
+| `kit/global-CLAUDE.md` | `~/.claude/CLAUDE.md` | Add its four sections to mine. |
 | `kit/agents/scout.md`, `builder.md`, `reviewer.md`, `tester.md` | `~/.claude/agents/` | They use the model aliases `sonnet` and `opus`. If my plan lacks one, set the nearest model I have. `scout` and `reviewer` are read-only by instruction, not by tool: they keep Bash for `git diff` and searches. |
 | `kit/skills/graph/SKILL.md` | `~/.claude/skills/graph/SKILL.md` | It sets `disable-model-invocation: true`, so it costs nothing until I start it with `/graph`. |
 | `kit/skills/architecture/` (the whole folder) | `~/.claude/skills/architecture/` | Also started only by me, with `/architecture`. Step 6 uses it. |
