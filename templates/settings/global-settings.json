@@ -1,0 +1,17 @@
+{
+  "model": "<your main model, for example opus>",
+  "advisorModel": "<a model at or above the main one, for example fable or opus>",
+  "effortLevel": "high",
+  "autoCompactWindow": 300000,
+  "workflowSizeGuideline": "small",
+  "skillListingBudgetFraction": 0.005,
+  "outputStyle": "Concise",
+  "env": {
+    "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS": "3"
+  },
+  "permissions": {
+    "ask": [
+      "Workflow"
+    ]
+  }
+}

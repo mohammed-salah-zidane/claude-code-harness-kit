@@ -1,0 +1,98 @@
+# Claude Code harness kit
+
+A small setup for Claude Code that aims to keep quality high and token use low, plus the prompt that installs it on your machine and cleans up what you no longer need.
+
+It comes from one rebuild, done in November 2026 by one developer who builds a mobile app on two platforms with Claude Code every day. The measurements behind each choice are in this file. Nothing here is specific to that app.
+
+What has been run and what has not: the cleanup, the settings, the four agents' definitions and the three scripts were applied and measured on that machine. The `/graph` and `/architecture` skills, the three skill templates and the setup prompt are new in this form and have not yet been through a full run. Treat them as a careful first version and tell Claude where they do not fit.
+
+## How to use it
+
+1. Clone it with `git clone https://github.com/mohammed-salah-zidane/claude-code-harness-kit`, or download it as a zip from that page.
+2. Open Claude Code in a project you work on.
+3. Say: `Read <path to this folder>/SETUP-PROMPT.md and follow it.`
+
+Claude measures your current setup, shows you one plan, and waits for your go before it removes or overwrites anything. Everything it removes is backed up first.
+
+## What is in the folder
+
+| Path | What it is |
+|---|---|
+| `SETUP-PROMPT.md` | The prompt for Claude: measure, propose, clean up, install the kit, fix each project, verify, report. |
+| `kit/` | Files that go into `~/.claude` and work in every project: four agents, the `/graph` and `/architecture` skills, the `/review` command, four short global rules, an output style. |
+| `templates/skills/` | Three procedure skills to adapt to your own project: ship a ticket, ship a design, write release notes. |
+| `templates/project-CLAUDE.md` | A model for a project's CLAUDE.md. |
+| `RULES.md` | The working rules one product runs on, each with its reason, with the stack and the architecture taken out. |
+| `templates/rules/` | Rule files that load only when matching files are touched: an architecture outline for Claude to fill, and templates for design system, localization and platform parity. |
+| `templates/settings/` | The settings values, with the reason for each. |
+| `scripts/` | Three small scripts: count which skills, agents and MCP servers you really use; measure what a session cost; start an MCP server with its key read from the macOS Keychain. |
+| `SKILLS.md` | The skills, plugins and MCP servers the original setup kept, by role, with how often each was used. |
+
+## The ideas behind it
+
+**1. On a long run, cost is context size per turn times the number of turns.** One large task run as seven full sessions read about 7.0 billion cached tokens. Every session sat near 500k tokens per turn for thousands of turns, because auto-compact only starts near 967k on a 1M-context model. The number of agents was not the problem. So: set a smaller compact window, clear the conversation between unrelated tasks, and keep the state of long work in files.
+
+**2. What loads in every session is a budget.** Keep CLAUDE.md to what cannot be read from the code: commands, decisions, gotchas, what you corrected twice. Put area rules in path-scoped files. Put procedures in skills, which load only when used. Trim the memory index. Check the result with `/context`.
+
+**3. Keep the tools you use.** Let the logs decide: a plugin, skill or agent with no use goes. Seven weeks of logs showed that 86 of 120 skills were never run and were not needed by anything that was. A plugin that injects text into every session through hooks changes every reply, whether you wanted it that turn or not. Connect an MCP server only in the project that needs it, and prefer a command-line tool where one exists, because it adds nothing to the start-up prompt.
+
+**4. Prose is for judgment. Hooks and deny rules are for what can never bend.** Capitals, "don't be lazy" and "think hard" no longer help; current models follow a plainly worded line, and over-apply an emphasized one. If a rule keeps being missed, the file is too long or the rule belongs in a hook.
+
+**5. A subagent buys parallel work, a quiet main context, or a fresh pair of eyes. It does not buy a better answer.** Give each one a contract (goal, files to read, files it may change, exit checks, a short reply), its own model and turn limit, and check its result before building on it. Several agents on one task run as a small graph with a gate after every node.
+
+**6. Ask the stronger model at the decision points only.** The advisor is worth a call on the plan, when a fix has failed twice, and before saying a long task is done. Each call re-reads the whole conversation.
+
+**7. One review per diff.** A bug review in a fresh context, then the sides your project cares about, then one pass that only looks for code to delete. Each finding reported once. A diff that has not changed is not reviewed again.
+
+**8. A procedure you repeat becomes a skill with phases, gates and a log.** Each phase names the proof it needs. The log is ticked after each phase, so a new session, or the same one after a compaction, continues without repeating work. Lessons from earlier runs live in a reference file with one heading per lesson, and only the matching ones are read. After a compaction a skill keeps only its first 5,000 tokens, so the rules go at the top.
+
+**9. Claim only what you ran.** A bug is confirmed by a test that fails for the reason given. A change a person can see is hand tested on a device, with screenshots kept. Anything not run is written "not run", with the reason.
+
+**10. No secret sits in a project file.** Keys go in the system keychain or in an environment variable set outside the repository.
+
+**11. Match the model and the effort to the job.** The strongest model and the highest effort on every turn was one of the measured costs. The setup now runs a strong main model at `high` effort with the strongest model as advisor. That saving is expected from how the cost was distributed; it has not been measured yet.
+
+**12. The architecture is chosen or learned, then written down and checked.** This kit ships no architecture. `/architecture` picks one with you for a new project, from the platform's current guidance and your product's needs. For an existing project it reads the code, writes down the architecture that is already there, and lists where the code leaves it. Either way the result is one contract file, plus checks that print nothing when the code conforms: the build where it can enforce a boundary, audit searches, the review, and a hook for the few patterns worth blocking.
+
+**13. Measure before and after.** Two commands tell you most of it: `claude -p "/context"` for what loads at start-up, and `/usage` for where the tokens went.
+
+## What the original rebuild changed
+
+| | Before | After |
+|---|---|---|
+| Plugins | 26 | 8 |
+| Personal skills | 120 | 34 kept, plus three written for this kit |
+| Permission allow rules | 678 | 176 |
+| Auto-compact window | about 967k | 300k for the main session, 200k for agents |
+| Effort | `xhigh` on every model | `high` |
+| Start-up prompt, headless | 65.8k tokens | 60.0k, with the subagent tools now loaded |
+| Largest procedure skill | 91KB in one file | 58KB, with its lessons in a reference file |
+
+Two traps it found on the way:
+
+- `ENABLE_TOOL_SEARCH=auto` stops deferring tools once few MCP servers are connected, and loads every tool definition up front: 118k tokens in one run. Leave it unset.
+- The skill listing is capped at 1% of the context window. Removing skills does not shrink it until the total is under the cap, although the remaining skills do get their full descriptions back. `skillListingBudgetFraction` lowers the cap.
+
+## The daily flow
+
+1. **A ticket** goes through a ship-ticket skill: check that the ticket is real before changing anything, plan, build test first, verify, review, hand test, pull request, update the tracker.
+2. **A design** goes through a ship-design skill: read the existing code, take every value from the design source, plan every platform together, build, compare on a device.
+3. **A review**, in any wording, is `/review`.
+4. **A large task with separable parts** is `/graph`: a run file, the advisor on the plan, nodes with contracts, a gate after each, the review once at the end.
+5. **State lives in files**: the ship log, the evidence folder, the run file. Compacting or clearing loses nothing.
+6. **A correction becomes a memory note with its reason.** A rule repeated often moves into CLAUDE.md. A rule that must never bend becomes a hook or a deny rule.
+
+## Sources and credit
+
+- Claude Code documentation: [best practices](https://code.claude.com/docs/en/best-practices.md), [costs](https://code.claude.com/docs/en/costs.md), [subagents](https://code.claude.com/docs/en/sub-agents.md), [skills](https://code.claude.com/docs/en/skills.md), [advisor](https://code.claude.com/docs/en/advisor.md), [workflows](https://code.claude.com/docs/en/workflows.md), [model configuration](https://code.claude.com/docs/en/model-config.md).
+- The graph pattern is Anthropic's orchestrator-workers pattern under a newer name. Two readable write-ups: [Graph Engineering with Claude Code](https://www.aibuilderclub.com/blog/graph-engineering-with-claude-code) and [five composable patterns](https://www.qawolf.com/blog/how-to-implement-graph-engineering-5-composable-patterns).
+- Third-party skills and plugins named in `SKILLS.md` belong to their authors and are not included here.
+- Settings keys and command names change between Claude Code versions. This kit was built on 2.1.325. The setup prompt tells Claude to check the documentation before relying on a key.
+
+## Feedback
+
+If you run it, open an issue with your start-up numbers before and after (`claude -p "/context"`), and with anything the prompt got wrong on your machine. Real numbers from other setups are what this kit needs most.
+
+## Licence
+
+MIT, see `LICENSE`. Skills and plugins named in `SKILLS.md` belong to their authors and keep their own licences.
