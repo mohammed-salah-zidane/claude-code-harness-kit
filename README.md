@@ -6,6 +6,12 @@ It comes from one rebuild in November 2026 by one developer who builds a mobile 
 
 Made by Mohamed Salah ([mohammed-salah-zidane](https://github.com/mohammed-salah-zidane) on GitHub). MIT licence.
 
+## How it came about
+
+Since I started coding with AI, I have changed my setup almost every week, looking for what works. Plain chat first. Then agents that edit the code. Then Spec Kit to write specs before code. Then Superpowers for planning, with UI skills on top for design. Now a small graph of agents with an advisor. Each step fixed something the one before could not.
+
+Newer models do much of what those layers did, and every layer costs tokens. So this kit keeps only what still earns its place on my own projects: a ticket instead of a plan file, a few agents with written briefs, an advisor at the decision points, and one review per change. The daily flow below shows how they fit together.
+
 ## Before you run it
 
 **What the setup prompt does to your machine.** It reads `~/.claude` (settings, CLAUDE.md, agents, commands, skills, hooks, plugins), the MCP server entries in `~/.claude.json`, and the `CLAUDE.md`, `.claude` folder, `.mcp.json` and memory folder of each project you choose. Then it shows you one plan and stops.
@@ -137,10 +143,10 @@ Two traps it found on the way:
 
 ## The daily flow
 
-1. **A ticket** goes through a ship-ticket skill: check that the ticket is real before changing anything, plan, build test first, verify, review, hand test, pull request, update the tracker.
+1. **A ticket, not a plan file.** Every task starts as a ticket in the tracker, and a ship-ticket skill takes it from there: check that the ticket is real before changing anything, plan, build test first, verify, review, hand test, open the pull request, update the ticket. The skill keeps a log that survives a compaction, so no separate plan document is needed.
 2. **A design** goes through a ship-design skill: read the existing code, take every value from the design source, plan every platform together, build, compare on a device.
-3. **A review**, in any wording, is `/review` (or `/full-review` where the built-in name is taken).
-4. **A large task with separable parts** is `/graph`: a run file, the advisor on the plan, nodes with contracts, a gate after each, the review once at the end.
+3. **A review**, in any wording, is `/review` (or `/full-review` where the built-in name is taken): bugs first, then the project's own checklist, then a pass that only looks for code to delete.
+4. **A large task with separable parts** is `/graph`. The lead writes a run file and asks the advisor about the plan. Each `builder` agent gets a written contract and a closed list of files it may touch. A `reviewer` that has not seen the code being written checks each part before the next one starts. A `tester` agent runs the app on a simulator or emulator. The review runs once at the end.
 5. **State lives in files**: the ship log, the evidence folder, the run file. Compacting or clearing loses nothing.
 6. **A correction becomes a memory note with its reason.** A rule repeated often moves into CLAUDE.md. A rule that must never bend becomes a hook or a deny rule.
 
