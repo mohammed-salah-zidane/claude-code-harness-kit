@@ -38,10 +38,10 @@ Check the ticket, build all of it, then run each check once, in this order:
 | The fix | Its one check |
 |---|---|
 | Changes what a person sees | That scenario on the device |
-| Changes logic only | The tests that cover it |
+| Changes logic only | The test classes that cover it |
 | Touches sync, money, data loss, concurrency or security, or is more than a small edit | `/code-review` of that change only, plus its tests |
 
-Log each re-check: the fix, the check chosen, the result. Merging, on the owner's word, adds one full suite on the merged tree.
+A fix made before the hand test needs no device check of its own: the hand test covers it. Log each re-check: the fix, the check chosen, the result. Merging, on the owner's word, adds one full suite on the merged tree.
 
 ## Rules
 
@@ -104,7 +104,7 @@ Why: test runs after every step are where long tickets lose their days.
 
 ## 6. Tests, once
 
-Do: when all the code is written, run once on each platform touched: the new tests, module tests, full suite and static checks (`<TEST-COMMAND>`), output to files. Show that a failure you did not cause is old (the same test on `<BASE-BRANCH>`), then fix it in this ticket when it is within reach. A fixed failure is re-checked by its module's tests, not by another full run.
+Do: when all the code is written, run once on each platform touched: the new tests first as a fast fail, then the full suite (it includes the module tests) and static checks (`<TEST-COMMAND>`), output to files. Show that a failure you did not cause is old (the same test on `<BASE-BRANCH>`), then fix it in this ticket when it is within reach. A fixed failure is re-checked by its test class, not by another full run.
 Proof: each command and its counts.
 Why: a count you read is evidence; "tests pass" from memory is not.
 

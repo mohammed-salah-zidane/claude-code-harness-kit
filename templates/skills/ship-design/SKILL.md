@@ -107,15 +107,15 @@ Do: decide each row, even if "unchanged": every path that creates or edits this 
 Proof: a wiring table, a decision per row.
 Why: this is where "it looks right but does not work" is caught.
 
-## 10. Review
+## 10. Tests once, then one review
 
-Do: run `/review` on the diff, once per diff: a diff that was reviewed and has not changed is not reviewed again. Check correctness (boundaries, signs, rounding, money types, time zones, missing values), concurrency, completeness, architecture, tokens and parity, strings, gating, and that replaced code is deleted. For a large change, give the `reviewer` agent the diff, value tables and plan. Fix every finding.
+Do: build every platform and run `<TEST-COMMAND>` once; fix every failure and rerun only what failed. Then run `/review` once on the whole diff. The sides it checks for a design: correctness (boundaries, signs, rounding, money types, time zones, missing values), concurrency, completeness, architecture, tokens and parity, strings, gating, and that replaced code is deleted. Fix every finding; a fix gets the one check that proves it (its tests, or a `/code-review` of that change for sync, money, data loss, concurrency or security), and the hand test in phase 11 covers what a person sees. The diff is not reviewed again.
 Proof: findings and fixes, written down.
 Why: reading your diff as a suspect's catches most of what a device catches slowly.
 
-## 11. Verify against the design
+## 11. One hand test against the design
 
-Do: build, run `<TEST-COMMAND>`, install on a device per platform, drive the real flow to the designed state, save something. Compare a screenshot beside the frame: copy, order, spacing, type, color in both themes, radius, shadow, icons, motion; fix and reshoot until they match. Give the `tester` agent the states: light, dark, right-to-left, empty, loading, error, offline, locked, long strings, large text.
+Do: one hand test, after the review: install on a device per platform, drive the real flow to the designed state, save something. Compare a screenshot beside the frame: copy, order, spacing, type, color in both themes, radius, shadow, icons, motion; a screen that does not match is fixed, then reshot alone. Give the `tester` agent the states: light, dark, right-to-left, empty, loading, error, offline, locked, long strings, large text.
 Proof: side-by-side screenshots per state in `<EVIDENCE-FOLDER>`.
 Why: "it compiles" is not done; seen running and matching is.
 
