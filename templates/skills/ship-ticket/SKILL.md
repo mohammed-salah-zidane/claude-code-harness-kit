@@ -116,7 +116,7 @@ Why: one fresh-context review finds what the author missed; a second one on the 
 
 ## 8. Hand test, once
 
-Do: write the scenarios and expected results first: each acceptance criterion, the broken state, the fix and the recovery, the real save path. Install a `<BUILD-COMMAND>` build per platform touched and give the list to one `tester` agent, one platform at a time. Each scenario runs once. The base language and another from `<LANGUAGES>` (right-to-left if any), light and dark, on the screens whose layout changed; a logic scenario runs once. Build hard states (seed data, edit storage, a debug-only switch, airplane mode) rather than skip them; ask the owner for what only the owner holds. A failed scenario is fixed, then run again alone.
+Do: write the scenarios and expected results first: each acceptance criterion, the broken state, the fix and the recovery, the real save path. Install a `<BUILD-COMMAND>` build per platform touched and give the list to one `tester` agent, one platform at a time. Use the simulators and emulators that exist; create one only when none can run a scenario, and record it in the log so the clean-up removes it. Each scenario runs once. The base language and another from `<LANGUAGES>` (right-to-left if any), light and dark, on the screens whose layout changed; a logic scenario runs once. Build hard states (seed data, edit storage, a debug-only switch, airplane mode) rather than skip them; ask the owner for what only the owner holds. A failed scenario is fixed, then run again alone.
 Proof: a result and screenshots per scenario in `<EVIDENCE-FOLDER>`.
 Why: unit tests prove the unit; only the real flow shows what a person gets.
 
@@ -145,4 +145,6 @@ Stop, log the reason, comment on the ticket and tell the user when:
 
 Ready to open: phases 1 to 8 passed in order on the pushed code, with evidence; each acceptance criterion has a test and a scenario, or the owner's written decision; the platforms agree, or the body says why one needs nothing; the diff holds this ticket's change and the fixes found on the way, nothing else; new strings exist in all `<LANGUAGES>`; the body claims nothing unseen.
 
-Done: the bot rounds are finished, the owner said to merge, the merged tree passed the full suite once, the merge is pinned to the tested commit, and the owner closed the ticket. A run ends In Review or Done, never in between.
+Done: the bot rounds are finished, the owner said to merge, the merged tree passed the full suite once, the merge is pinned to the tested commit, and the owner closed the ticket.
+
+Clean-up, right after the merge and not before (the review and the bot fixes use these): remove the ticket's worktrees and their build folders, the merged branch, the devices the log says it created (never a shared one), and its evidence folder with its screenshots, recordings and builds. Keep the log. A run ends In Review or Done, never in between.
