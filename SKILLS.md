@@ -14,7 +14,7 @@ Third-party skills are not included in this kit. Where the source was recorded, 
 | `/graph` (`kit/skills/graph/`) | A large task as a small graph of subagents with contracts, gates and budgets | new |
 | `/architecture` (`kit/skills/architecture/`) | Chooses or learns a project's architecture, writes the contract, sets up the checks | new |
 | `scout`, `builder`, `reviewer`, `tester` (`kit/agents/`) | The four node types | new |
-| Ship a ticket (`templates/skills/ship-ticket/`) | One ticket in, one proven pull request out, in eleven phases | about 65 |
+| Ship a ticket (`templates/skills/ship-ticket/`) | One ticket in, one proven pull request out: build all of it, then tests once, one review, one hand test, two bot rounds at most | about 65 |
 | Ship a design (`templates/skills/ship-design/`) | A design becomes shipped code on every platform | 14 |
 | Release notes (`templates/skills/release-notes/`) | Release copy through a business filter, per locale | 11 |
 

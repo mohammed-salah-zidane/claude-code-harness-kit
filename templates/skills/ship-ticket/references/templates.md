@@ -10,9 +10,8 @@ Fill every field. Write "not run" or "not applicable" with the reason; never lea
 4. Plan comment (phase 4, plan mode)
 5. Commit message
 6. Pull request body
-7. "Pull request opened" comment (phase 10)
+7. "Pull request opened" comment (phase 9)
 8. "Stopped" comment
-9. New ticket for something found on the way
 
 ## 1. Ship log
 
@@ -30,15 +29,13 @@ Next step: <the exact next action, written so a fresh session can start from it>
 ## Phases
 - [ ] 1. Ticket and gates: <evidence>
 - [ ] 2. Context: <evidence>
-- [ ] 3. Verdict: <evidence>
-- [ ] 4. Plan: <evidence>
-- [ ] 5. Workspace: <evidence>
-- [ ] 6. Implement, test first: <evidence>
-- [ ] 7. Verify: <evidence>
-- [ ] 8. Review: <evidence>
-- [ ] 9. Hand test: <evidence>
-- [ ] 10. Pull request, review bot and tracker: <evidence>
-- [ ] 11. Related tickets: <evidence>
+- [ ] 3. Verdict (from reading): <evidence>
+- [ ] 4. Plan and branches: <evidence>
+- [ ] 5. Implemented in full (tests written, nothing run): <evidence>
+- [ ] 6. Tests, once: <evidence>
+- [ ] 7. One /review, fixes re-checked: <evidence>
+- [ ] 8. One hand test: <evidence>
+- [ ] 9. Pull request, review bot (two rounds at most) and tracker: <evidence>
 
 ## Verdict
 Reach: <steps from launch to the broken line, or "no path: <why>">
@@ -81,8 +78,8 @@ Reviewer agent: <report path>, <each point and what was done>
 | Round | Head commit | Comments | Fix commits | Threads resolved |
 |---|---|---|---|---|
 
-## Related tickets
-| Ticket | Relation | Shipped (link), or why not |
+## Re-checks
+| Fix | The one check chosen | Result |
 |---|---|---|
 ```
 
@@ -187,13 +184,9 @@ Sibling pull requests: <links | none: only <platform> changes | not needed becau
 ## Found and fixed on the way
 - <item> (`<path>`), or "nothing"
 
-## Left for later
-- <item>: <ticket key>, or "nothing"
-
 ## How it was verified
 | Check | Command | Result |
 |---|---|---|
-| New test failed before the fix | `<command>` | failed with "<message>" |
 | New and changed tests | `<command>` | <n> passed |
 | Module tests | `<command>` | <n> passed, <n> failed |
 | Full suite and static checks | `<command>` | <n> passed, <n> failed, or "not run: <reason>" |
@@ -237,23 +230,4 @@ Blocker: <what failed, with the command and the decisive output line>
 Tried: <one line per attempt>
 State: branch `<branch>`, <pushed | local only>, <n> commits
 Needs: <a decision between A and B | a fix in X first | access to Y>
-```
-
-## 9. New ticket for something found on the way
-
-Use the same shape as the tickets on the board, so any session can pick it up.
-
-Summary: `<platform>: <what is wrong>`
-Labels: `found-while-shipping`, the kind (`bug`, `refactor`, `cleanup`), the platform, a priority label (`p0` to `p3`).
-Parent: the epic of the same area.
-
-```
-**Found while shipping <TICKET-KEY>**. Evidence: read | run. Platform: <platform>. Priority: <p0 to p3>.
-
-## Problem
-## Where
-(paths with line numbers)
-## What to change (proposed)
-## Acceptance criteria
-## Why it was not fixed in <TICKET-KEY>
 ```

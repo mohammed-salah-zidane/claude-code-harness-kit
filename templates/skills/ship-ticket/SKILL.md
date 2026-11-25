@@ -1,12 +1,12 @@
 ---
 name: ship-ticket
-description: "Ship one <TRACKER> ticket end to end: check its claim, fix it test-first on every platform it touches, review and hand-test it, and open a pull request to <BASE-BRANCH>. Use for /ship-ticket, a named ticket, or the next one. Never merges. Not for releases or designs (use ship-design)."
+description: "Ship one <TRACKER> ticket end to end: check its claim, build the whole fix on every platform it touches, then run the tests once, one /review, one hand test, and open a pull request to <BASE-BRANCH> with at most two review-bot rounds. Use for /ship-ticket, a named ticket, or the next one. Never merges. Not for releases or designs (use ship-design)."
 argument-hint: "<TICKET-KEY> | next [--plan] [--go] [--resume]"
 ---
 
 # Ship a ticket
 
-One ticket goes in; one small, proven pull request per repository it changes comes out, each able to stand alone, then its related tickets. Running this skill is the go to branch, commit, push and open pull requests for this ticket and the related tickets phase 11 names, never to merge, force-push or touch another session's files.
+One ticket goes in; one proven pull request per repository it changes comes out, each able to stand alone. Everything found on the way is fixed inside this ticket. Running this skill is the go to branch, commit, push and open pull requests for this ticket, never to merge, force-push or touch another session's files.
 
 ## Fill these in first
 
@@ -22,30 +22,38 @@ One ticket goes in; one small, proven pull request per repository it changes com
 - `<REVIEW-BOT>`: the automated pull-request reviewer, or "none".
 - `<SIZE-MODELS>`: the model for sizes s, m and l.
 
-## Phases, in this order
+## The flow
 
-1. Ticket and gates
-2. Context
-3. Verdict, before any change
-4. Plan
-5. Workspace
-6. Implement, test first
-7. Verify
-8. Review
-9. Hand test
-10. Pull request, review bot and tracker
-11. Related tickets
+Check the ticket, build all of it, then run each check once, in this order:
+
+1. Verdict from reading the code (phase 3). No test runs before phase 6.
+2. Build the whole change on every platform, tests written with the code, nothing run (phase 5).
+3. Tests once: new, module and full suites, static checks (phase 6).
+4. One `/review` of the whole diff, and its fixes (phase 7).
+5. One hand test, after the review, by one `tester` (phase 8).
+6. The pull request, then the review bot, two rounds at most (phase 9).
+
+**Re-checking a fix.** A fix made at step 4, 5 or 6 gets the one check that proves it, never the whole set again:
+
+| The fix | Its one check |
+|---|---|
+| Changes what a person sees | That scenario on the device |
+| Changes logic only | The tests that cover it |
+| Touches sync, money, data loss, concurrency or security, or is more than a small edit | `/code-review` of that change only, plus its tests |
+
+Log each re-check: the fix, the check chosen, the result. Merging, on the owner's word, adds one full suite on the merged tree.
 
 ## Rules
 
 1. After a compaction only the start of this file is still in context, so read it again from the phase you are on.
-2. Keep a log at `<EVIDENCE-FOLDER>/log.md` (layout in `references/templates.md`). After each phase, tick it, add one line of evidence and rewrite "Next step". With `--resume` or an existing log, continue at the first unticked phase.
+2. Keep a log at `<EVIDENCE-FOLDER>/log.md` (layout in `references/templates.md`). After each phase, tick it, add one line of evidence and rewrite "Next step". On resume, read "Next step" and the phase list, not the whole log. Keep it short: long output goes to files beside it.
 3. Claim only what you ran in this session and read the result of; otherwise write "not run" and why. The hand test is the exception: it always runs.
-4. Work inline. Device hand tests go to the `tester` agent; a risky change also gets a `reviewer` agent check. For size l, propose a `/graph` run to the owner.
-5. One review per diff: a diff that was reviewed and has not changed is not reviewed again.
-6. Comment on the ticket at each milestone, from the templates.
-7. When a stop condition fires, stop and report.
-8. Add what a run teaches to `references/traps.md` in the same session.
+4. Work inline. The hand test goes to one `tester` agent. For size l, propose a `/graph` run to the owner.
+5. No new tickets. A bug, a red test, dead code or a stale comment met on the way is fixed in this ticket and listed in the pull request. A product question goes to the owner.
+6. Advisor: on the plan, when a fix has failed twice, and before opening the pull request.
+7. Comment on the ticket at start, verdict and plan, pull request opened, and stop.
+8. When a stop condition fires, stop and report.
+9. Add what a run teaches to `references/traps.md`, one heading per lesson, in the same session.
 
 ## 1. Ticket and gates
 
@@ -55,7 +63,7 @@ Why: a blocked, undecided or taken ticket wastes a run.
 
 ## 2. Context
 
-Do: fetch `<BASE-BRANCH>` and read there `CLAUDE.md` and the matching rules files, the code you will change with its callers and tests, the same behaviour on the other platforms in `<PLATFORMS>`, and the `references/traps.md` notes for this area.
+Do: fetch `<BASE-BRANCH>` and read there `CLAUDE.md` and the matching rules files, the code you will change with its callers and tests, the same behaviour on the other platforms in `<PLATFORMS>`, and the headings of `references/traps.md`, then the notes for this area.
 Proof: the files read.
 Why: the rules outrank the ticket, and the platform that already behaves correctly is the contract.
 
@@ -66,9 +74,9 @@ Check the ticket's claim first. Answer these in the log, for every platform:
 1. Can a real person reach it? Trace the steps from launch to the broken line and what guards them; "on a new device" has to match how a new device starts.
 2. Does something already prevent it? List every caller and every writer of the data first.
 3. Does the ask fit the product's rules, the other platforms and itself?
-4. How many users does it touch? Count the path's events in `<USAGE-DATA>`, never personal data, and write the number and source. With no source, write "not measured", name the event to count, and estimate from how often the path runs.
+4. How many users does it touch? Count the path's events in `<USAGE-DATA>` only when the verdict or the priority depends on it, never personal data. Otherwise estimate from how often the path runs, and say so.
 
-Reject only with proof: an unreachable path, a test that disproves the claim, or a broken rule. Never ship a ticket only because it exists.
+Reject only with proof: an unreachable path, a test or code that disproves the claim, or a broken rule. Never ship a ticket only because it exists.
 
 | Verdict | Then |
 |---|---|
@@ -79,69 +87,48 @@ Reject only with proof: an unreachable path, a test that disproves the claim, or
 | Rejected | Comment the traced path, Rejected, stop |
 | Needs a decision | Comment the options, label decision-needed, To Do, stop |
 
-Proof: for a bug, a test that fails for the reason the ticket gives, or the bug is not confirmed; for a clean-up, its measurement run again. Plan mode may confirm by reading until the go.
+Proof: the traced path with `file:line`. A bug's test is written in phase 5 and must assert the behaviour the ticket describes, so that it would fail on today's code.
 Why: tickets written from reading code are often wrong, and fixing a bug nobody hits still costs a review and a risk.
 
 ## 4. Plan
 
-Do: write the commits in order, the tests, each platform's change, the shared values touched (copy, stored fields, analytics names, ids, numbers) and what is out of scope. In plan mode, post the plan and stop; on "go" or `--go`, build exactly that. A ticket too big for one reviewable pull request ships one part per run.
-Proof: the plan, and in plan mode the go.
-Why: the review and the owner hold the diff against the plan.
+Do: write the commits in order, the tests, each platform's change, the shared values touched (copy, stored fields, analytics names, ids, numbers), each acceptance criterion with its test and hand-test scenario, and what is out of scope. In plan mode, post the plan and stop; on "go" or `--go`, build exactly that. A ticket with several independent parts: ask the owner whether it ships as one pull request or one part per run. Cut `<TICKET-KEY>-<slug>` from the remote `<BASE-BRANCH>` with no upstream in each repository the plan touches, in a worktree if another session owns the checkout.
+Proof: the plan, the branches, and in plan mode the go.
+Why: the review and the owner hold the diff against the plan, and a rejected ticket leaves no branch.
 
-## 5. Workspace
+## 5. Implement, all of it
 
-Do: if another session owns the checkout (a recent branch switch, a live build), use a worktree. Cut `<TICKET-KEY>-<slug>` from the remote `<BASE-BRANCH>` with no upstream, in each repository the plan touches.
-Proof: branches and base commits.
-Why: cut after the verdict, a rejected ticket leaves no branch, and with no upstream a plain push cannot reach `<BASE-BRANCH>`.
+Do: build the whole change on every platform the ticket touches, inside the rules files, before running anything. Write each test with the code it covers: the bug's test first. Run no tests while implementing; build only when you cannot continue without knowing the code compiles. Fix what you meet in its own commit (rule 5). Commit small, one concern each, with the key, staging files by name.
+Proof: the commits.
+Why: test runs after every step are where long tickets lose their days.
 
-## 6. Implement, test first
+## 6. Tests, once
 
-Do: write the failing test (a bug) or one that pins today's behaviour (a refactor) and log its failure line, then make the change and add the other acceptance tests. Change every platform the ticket touches the same way, inside the rules files. Fix what you meet in its own commit, or open a ticket if it is large. Commit small, one concern each, with the key, staging files by name.
-Proof: the failure line and the commits.
-Why: a test written after the fix tends to prove the fix, not the bug.
-
-## 7. Verify
-
-Do: on each platform touched, run the new tests, module tests, full suite and static checks (`<TEST-COMMAND>`), output to files. Show that a failure you did not cause is old (the same test on `<BASE-BRANCH>`); fix it if within reach, otherwise name it in the pull request.
+Do: when all the code is written, run once on each platform touched: the new tests, module tests, full suite and static checks (`<TEST-COMMAND>`), output to files. Show that a failure you did not cause is old (the same test on `<BASE-BRANCH>`), then fix it in this ticket when it is within reach. A fixed failure is re-checked by its module's tests, not by another full run.
 Proof: each command and its counts.
 Why: a count you read is evidence; "tests pass" from memory is not.
 
-## 8. Review
+## 7. Review, once
 
-Do: run `/review` on each repository's diff; it is the one review of this diff. Record what it finds, and what your own read of the diff and its callers finds, under six dimensions, each finding with `file:line` and a concrete failure, or "none, because <what you checked>":
+Do: run `/review` once on the whole diff, each repository. It runs `/code-review`, the project's own review sides and the over-engineering pass, and reports each finding once. Fix each real finding or take it to the owner; apply the cuts, never cutting validation, error handling, security, accessibility or required tests. Re-check each fix once, by the table in "The flow". The diff is not reviewed again.
+Proof: the findings, the fixes and their re-checks.
+Why: one fresh-context review finds what the author missed; a second one on the same code finds the same things again.
 
-1. Logic: every acceptance criterion, for empty, negative, first-run, signed-out, offline and second-device input, at the root cause.
-2. Bugs: concurrency, lifecycle, data loss, sync, errors shown, money, time zones, languages, accessibility, themes.
-3. Code quality: one job per type, no duplicate or dead code, tests that fail for the right reason.
-4. Scalability: ten times the data, and the hot paths.
-5. Maintenance: one source of truth per fact.
-6. Project standards: each broken rule, quoted.
+## 8. Hand test, once
 
-Then write three concrete ways the fix could still be wrong (an edge input, another caller, another platform, a lifecycle) and check each. Fix real findings with a test that fails first, or take them to the owner. Apply the cuts of the over-engineering pass that ends `/review`, never cutting validation, error handling, security, accessibility or required tests. For size l or a risky change (sync, money, data loss, security), give the `reviewer` agent the ticket, the diff and the criteria, not your conclusions, and settle each point. Rerun phase 7 after any change.
-Proof: the dimensions, the three checks, the cuts and any reviewer report.
-Why: the author is the worst judge of a fix, so the review hunts for reasons it is wrong.
-
-## 9. Hand test
-
-Do: write the scenarios and expected results first: the broken state, the fix and the recovery, in the base language and another from `<LANGUAGES>` (right-to-left if any), light and dark. Install a `<BUILD-COMMAND>` build of the final code per platform touched and give the list to the `tester` agent. Build hard states (seed data, edit storage, a debug-only switch, airplane mode) rather than skip them; ask the owner for what only the owner holds. A later code change reruns the scenarios it touches.
+Do: write the scenarios and expected results first: each acceptance criterion, the broken state, the fix and the recovery, the real save path. Install a `<BUILD-COMMAND>` build per platform touched and give the list to one `tester` agent, one platform at a time. Each scenario runs once. The base language and another from `<LANGUAGES>` (right-to-left if any), light and dark, on the screens whose layout changed; a logic scenario runs once. Build hard states (seed data, edit storage, a debug-only switch, airplane mode) rather than skip them; ask the owner for what only the owner holds. A failed scenario is fixed, then run again alone.
 Proof: a result and screenshots per scenario in `<EVIDENCE-FOLDER>`.
 Why: unit tests prove the unit; only the real flow shows what a person gets.
 
-## 10. Pull request, review bot and tracker
+## 9. Pull request, review bot and tracker
 
-Do: when "Ready to open" holds, open it without asking again: a clean tree, only this ticket's commits, the body from the template, linked to its sibling pull requests. Unless `<REVIEW-BOT>` is none, run rounds: request a review and wait in one blocking command for one on the head commit; fix each real comment in its own commit on every platform it holds for, then verify, review and rerun the scenarios it touches; reply on every thread with the commit or proof that nothing needs to change, resolve it, request again. Clean means the newest bot review is on the head commit with no new comments and no open thread. Stop after five rounds that still add comments; a bot that could not review counts as not verified. Then post "Pull request opened", move the ticket to In Review, and tell the user what changed and what was and was not verified.
+Do: when "Ready to open" holds, open it without asking again: a clean tree, only this ticket's commits, the body from the template, linked to its sibling pull requests. Unless `<REVIEW-BOT>` is none, run at most two rounds: request a review and wait in one blocking command for one on the head commit; fix each real comment in its own commit on every platform it holds for, re-checking each fix once; reply on every thread with the commit or proof that nothing needs to change, and resolve it; request round 2 once, fix it the same way, and request no third. A bot that could not review counts as not verified. Then post "Pull request opened", move the ticket to In Review, comment on any existing ticket this pull request also resolves, and tell the user what changed and what was and was not verified.
 Proof: the links, each round in the body, the comment and the new state.
 Why: the owner reads the pull request and the ticket first, so both tell the truth about every check.
 
-## 11. Related tickets
-
-Do: list the tickets this one blocks, those with its root cause, and its twin on another platform. Ship each from phase 1; cut one that needs this change from this branch, its body opening with "merge after <link>". Comment on one that fails a gate.
-Proof: each one shipped, or named with its reason.
-Why: a fix that leaves its twin broken ships the bug again.
-
 ## Sizes and modes
 
-Size s names the exact lines in three files or fewer; m is an ordinary bug across four to ten files; l is sync, concurrency, money or a guessed cause. When two fit, take the bigger: a wrong pull request costs more than a strong model. A model in `<SIZE-MODELS>` takes its size and smaller, or names the right one and asks for a rerun. Raise the size when phase 3 finds more. The mode is plan with `--plan` or for a stored shape, payments, deleted data, new copy, or refactor or security work; owner when only the owner can act, which is not shipped; otherwise auto.
+Size s names the exact lines in three files or fewer; m is an ordinary bug across four to ten files; l is sync, concurrency, money or a guessed cause. When two fit, take the bigger: a wrong pull request costs more than a strong model. A model in `<SIZE-MODELS>` takes its size and smaller, or names the right one and asks for a rerun. Raise the size when phase 3 finds more. The mode is plan with `--plan` or for a stored shape, payments, deleted data, new copy, or refactor or security work; owner when only the owner can act, which is not shipped; otherwise auto. Start each ticket in a fresh session, or clear the conversation between tickets.
 
 ## Stop conditions
 
@@ -150,12 +137,12 @@ Stop, log the reason, comment on the ticket and tell the user when:
 - a phase 1 gate fails, the verdict ends the run, or plan mode has no go;
 - the fix needs a product decision, unapproved copy or a missing design;
 - it would take something from a paying user, change behaviour beyond the ticket, or alter a stored shape outside the plan;
-- three verify passes end red, or the hand test fails with no clear fix;
+- phase 6 is still red after two rounds of fixes, or the hand test fails with no clear fix;
 - a command is destructive or touches `<BASE-BRANCH>`, a release branch or another session's files;
 - the scope is unclear.
 
 ## What done means
 
-Ready to open: phases 1 to 9 passed in order on the pushed code, with evidence; each acceptance criterion has a test and a scenario, or the owner's written decision; the platforms agree, or the body says why one needs nothing; the diff holds only this ticket; new strings exist in all `<LANGUAGES>`; the body claims nothing unseen.
+Ready to open: phases 1 to 8 passed in order on the pushed code, with evidence; each acceptance criterion has a test and a scenario, or the owner's written decision; the platforms agree, or the body says why one needs nothing; the diff holds this ticket's change and the fixes found on the way, nothing else; new strings exist in all `<LANGUAGES>`; the body claims nothing unseen.
 
-Done: the bot is clean, the owner said to merge, the merged tree passed the full suite, the merge is pinned to the tested commit, related tickets are shipped or named, and the owner closed the ticket. A run ends In Review or Done, never in between.
+Done: the bot rounds are finished, the owner said to merge, the merged tree passed the full suite once, the merge is pinned to the tested commit, and the owner closed the ticket. A run ends In Review or Done, never in between.

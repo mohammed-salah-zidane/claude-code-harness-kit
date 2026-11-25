@@ -143,7 +143,7 @@ Two traps it found on the way:
 
 ## The daily flow
 
-1. **A ticket, not a plan file.** Every task starts as a ticket in the tracker, and a ship-ticket skill takes it from there: check that the ticket is real before changing anything, plan, build test first, verify, review, hand test, open the pull request, update the ticket. The skill keeps a log that survives a compaction, so no separate plan document is needed.
+1. **A ticket, not a plan file.** Every task starts as a ticket in the tracker, and a ship-ticket skill takes it from there: check that the ticket is real before changing anything, plan, build all of it, then run the tests once, one review, one hand test, open the pull request, and at most two review-bot rounds. A fix after that gets only the one check that proves it, and anything found on the way is fixed inside the same ticket. The skill keeps a log that survives a compaction, so no separate plan document is needed.
 2. **A design** goes through a ship-design skill: read the existing code, take every value from the design source, plan every platform together, build, compare on a device.
 3. **A review**, in any wording, is `/review` (or `/full-review` where the built-in name is taken): bugs first, then the project's own checklist, then a pass that only looks for code to delete.
 4. **A large task with separable parts** is `/graph`. The lead writes a run file and asks the advisor about the plan. Each `builder` agent gets a written contract and a closed list of files it may touch. A `reviewer` that has not seen the code being written checks each part before the next one starts. A `tester` agent runs the app on a simulator or emulator. The review runs once at the end.

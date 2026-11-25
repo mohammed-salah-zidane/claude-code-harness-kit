@@ -79,7 +79,7 @@ Run it before the next node starts:
 
 - Read the diff in full: `git diff --stat`, then each changed file. Nothing outside the node's list.
 - Re-run the exit commands yourself when the report's counts are the only proof.
-- A part with more than a few requirements gets one `reviewer` check against its contract.
+- A part that touches sync, money, data loss, concurrency or security gets one `reviewer` check against its contract. Every other part relies on this gate and the one `/review` at the end.
 - A change a person can see gets one `tester` run, with pictures beside the design.
 - Failed gate: send the findings back to the same node as its new contract. SendMessage keeps its context. Second failure: advisor. Third: you take the node.
 - Update the node's status in `GRAPH.md`.
